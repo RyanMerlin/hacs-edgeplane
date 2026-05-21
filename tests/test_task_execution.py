@@ -14,7 +14,7 @@ from custom_components.missioncontrol.coordinator import MCCoordinator
 def coordinator(hass):
     entry = MockConfigEntry(domain=DOMAIN, data={
         "mc_url": "http://mc:8008",
-        "sa_token": "mcs_sa_test",
+        "sa_token": "mc_session_test",
         "agent_name": "home-assistant",
         "capabilities": ["home_control.light", "notify"],
         "mission_id": "mission-123",

@@ -147,8 +147,8 @@ class MCCoordinator(DataUpdateCoordinator):
 
     async def _notify_auth_failure(self) -> None:
         self.hass.components.persistent_notification.async_create(
-            "MissionControl service account token has expired. "
-            "Reconfigure the integration to continue.",
+            "MissionControl API token has expired or been revoked. "
+            "Reconfigure the integration with a fresh session token.",
             title="MissionControl: Auth Failure",
             notification_id="missioncontrol_auth_failure",
         )

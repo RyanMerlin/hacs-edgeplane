@@ -46,7 +46,7 @@ async def test_step1_invalid_token_shows_error(hass: HomeAssistant, mock_mc_auth
     )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {"mc_url": "http://missioncontrol:8008", "sa_token": "mcs_sa_bad"},
+        {"mc_url": "http://missioncontrol:8008", "sa_token": "mc_session_bad"},
     )
     assert result["type"] == FlowResultType.FORM
     assert result["errors"]["base"] == "cannot_connect"
@@ -58,7 +58,7 @@ async def test_step1_valid_proceeds_to_step2(hass: HomeAssistant, mock_mc_health
     )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {"mc_url": "http://missioncontrol:8008", "sa_token": "mcs_sa_good"},
+        {"mc_url": "http://missioncontrol:8008", "sa_token": "mc_session_good"},
     )
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "agent"
@@ -71,7 +71,7 @@ async def test_step2_creates_entry(hass: HomeAssistant, mock_mc_healthy):
         )
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
-            {"mc_url": "http://missioncontrol:8008", "sa_token": "mcs_sa_good"},
+            {"mc_url": "http://missioncontrol:8008", "sa_token": "mc_session_good"},
         )
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],

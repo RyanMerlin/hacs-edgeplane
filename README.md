@@ -19,14 +19,28 @@ Registers Home Assistant as a first-class agent in the [MissionControl](https://
 2. Install "MissionControl" from HACS
 3. Restart Home Assistant
 4. Go to **Settings → Devices & Services → Add Integration → MissionControl**
-5. Enter your MC server URL and a Service Account token (`mcs_sa_…`)
+5. Enter your MC server URL and a session token (see [Authentication](#authentication) below)
+
+## Authentication
+
+The integration authenticates using a **MC session token** — a 64-character bearer token stored in `~/.mc/session.json` after running `mc auth login`.
+
+```bash
+mc auth login
+# Token is stored at ~/.mc/session.json
+cat ~/.mc/session.json | python3 -c "import sys,json; print(json.load(sys.stdin)['token'])"
+```
+
+Copy that token into the **API Token** field during setup.
+
+> **Note:** MC service account tokens (`mcs_cs_*`) do not authenticate against mesh API endpoints. Session tokens are required.
 
 ## Configuration
 
 | Field | Description |
 |-------|-------------|
-| MC URL | Base URL of your MissionControl server (e.g. `http://missioncontrol:8008`) |
-| Service Account Token | A `mcs_sa_…` token created in MC |
+| MC URL | Base URL of your MissionControl server. If HA runs in the same Kubernetes cluster as MC, use the cluster-internal service DNS (e.g. `http://mc-controlplane.missioncontrol.svc.cluster.local:8008`) rather than a Tailscale hostname. |
+| API Token | A session token from `mc auth login` (see above) |
 | Agent name | Identifier shown in the MC fleet view |
 | Capabilities | Which HA domains to expose as MC capabilities |
 

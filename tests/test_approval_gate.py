@@ -14,7 +14,7 @@ from custom_components.missioncontrol.models import HaTaskPayload
 @pytest.fixture
 def coordinator(hass):
     entry = MockConfigEntry(domain=DOMAIN, data={
-        "mc_url": "http://mc:8008", "sa_token": "mcs_sa_test",
+        "mc_url": "http://mc:8008", "sa_token": "mc_session_test",
         "agent_name": "home-assistant", "capabilities": ["notify"],
         "mission_id": "m1", "agent_id": "a1",
     })

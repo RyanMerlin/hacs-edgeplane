@@ -16,7 +16,7 @@ def config_entry(hass: HomeAssistant):
         domain=DOMAIN,
         data={
             "mc_url": "http://missioncontrol:8008",
-            "sa_token": "mcs_sa_test",
+            "sa_token": "mc_session_test",
             "agent_name": "home-assistant",
             "capabilities": ["home_control.light", "notify"],
             "mission_id": "mission-123",

@@ -20,7 +20,7 @@ def mc_url() -> str:
 
 @pytest.fixture
 def sa_token() -> str:
-    return "mcs_sa_abc123"
+    return "mc_session_abc123"
 
 
 @pytest.fixture

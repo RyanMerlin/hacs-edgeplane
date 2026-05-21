@@ -20,7 +20,7 @@
     },
     "error": {
       "cannot_connect": "Cannot connect to MissionControl. Check URL and token.",
-      "invalid_auth": "Invalid service account token."
+      "invalid_auth": "Invalid API token. Provide a session token from mc auth login."
     },
     "abort": {
       "already_configured": "MissionControl is already configured."
