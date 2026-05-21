@@ -1,0 +1,35 @@
+"""Global pytest fixtures for hacs-missioncontrol tests."""
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from homeassistant.core import HomeAssistant
+
+pytest_plugins = "pytest_homeassistant_custom_component"
+
+
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(enable_custom_integrations):
+    """Enable custom integrations for all tests."""
+    yield
+
+
+@pytest.fixture
+def mc_url() -> str:
+    return "http://missioncontrol:8008"
+
+
+@pytest.fixture
+def sa_token() -> str:
+    return "mcs_sa_abc123"
+
+
+@pytest.fixture
+def mock_config_entry_data(mc_url, sa_token):
+    return {
+        "mc_url": mc_url,
+        "sa_token": sa_token,
+        "agent_name": "home-assistant",
+        "capabilities": ["home_control.light", "notify"],
+        "mission_id": "test-mission-id",
+        "agent_id": "test-agent-id",
+    }
