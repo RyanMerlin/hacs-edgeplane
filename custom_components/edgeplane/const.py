@@ -1,9 +1,9 @@
-"""Constants for MissionControl integration."""
+"""Constants for EdgePlane integration."""
 
-DOMAIN = "missioncontrol"
+DOMAIN = "edgeplane"
 
 # Config entry keys
-CONF_MC_URL = "mc_url"
+CONF_EP_URL = "ep_url"
 CONF_SA_TOKEN = "sa_token"
 CONF_AGENT_NAME = "agent_name"
 CONF_CAPABILITIES = "capabilities"
@@ -18,7 +18,7 @@ WS_BACKOFF_INITIAL_S = 1
 WS_BACKOFF_MAX_S = 60
 APPROVAL_TIMEOUT_S = 86400  # 24 hours
 
-# MC API paths
+# EP API paths
 PATH_HEALTH = "/health"
 PATH_AUTH_WHOAMI = "/auth/whoami"
 PATH_MISSIONS = "/missions"

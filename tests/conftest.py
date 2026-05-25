@@ -1,4 +1,4 @@
-"""Global pytest fixtures for hacs-missioncontrol tests."""
+"""Global pytest fixtures for hacs-edgeplane tests."""
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -14,19 +14,19 @@ def auto_enable_custom_integrations(enable_custom_integrations):
 
 
 @pytest.fixture
-def mc_url() -> str:
-    return "http://missioncontrol:8008"
+def ep_url() -> str:
+    return "http://edgeplane:8008"
 
 
 @pytest.fixture
 def sa_token() -> str:
-    return "mc_session_abc123"
+    return "ep_session_abc123"
 
 
 @pytest.fixture
-def mock_config_entry_data(mc_url, sa_token):
+def mock_config_entry_data(ep_url, sa_token):
     return {
-        "mc_url": mc_url,
+        "ep_url": ep_url,
         "sa_token": sa_token,
         "agent_name": "home-assistant",
         "capabilities": ["home_control.light", "notify"],

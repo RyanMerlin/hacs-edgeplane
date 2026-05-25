@@ -1,0 +1,11 @@
+{
+  "domain": "edgeplane",
+  "name": "EdgePlane",
+  "codeowners": ["@ryanmerlin"],
+  "config_flow": true,
+  "documentation": "https://github.com/ryanmerlin/hacs-edgeplane",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/ryanmerlin/hacs-edgeplane/issues",
+  "requirements": ["aiohttp>=3.9"],
+  "version": "0.1.0"
+}

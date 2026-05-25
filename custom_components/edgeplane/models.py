@@ -1,4 +1,4 @@
-"""Data models for MissionControl integration."""
+"""Data models for EdgePlane integration."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ class HaTaskPayload:
 
 
 @dataclass
-class MCAgentState:
+class EPAgentState:
     """Mutable state surfaced to HA entities."""
 
     online: bool = False

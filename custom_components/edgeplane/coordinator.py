@@ -1,4 +1,4 @@
-"""MCCoordinator — WebSocket-primary coordinator for MissionControl."""
+"""EPCoordinator — WebSocket-primary coordinator for EdgePlane."""
 from __future__ import annotations
 
 import asyncio
@@ -16,27 +16,27 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
     APPROVAL_TIMEOUT_S, CONF_AGENT_ID, CONF_AGENT_NAME, CONF_CAPABILITIES,
-    CONF_AGENT_PUBLIC_ID, CONF_MC_URL, CONF_MISSION_ID, CONF_SA_TOKEN, DOMAIN,
+    CONF_AGENT_PUBLIC_ID, CONF_EP_URL, CONF_MISSION_ID, CONF_SA_TOKEN, DOMAIN,
     HEARTBEAT_INTERVAL_S, PATH_AGENT_HEARTBEAT, PATH_AGENT_NOTIFY,
     PATH_AGENT_STATUS, PATH_AUTH_WHOAMI, PATH_ENROLL, PATH_HEALTH, PATH_TASK,
     PATH_TASK_CLAIM, PATH_TASK_COMPLETE, PATH_TASK_FAIL,
     PATH_TASK_HEARTBEAT, PATH_TASK_PROGRESS,
     TASK_HEARTBEAT_INTERVAL_S, WS_BACKOFF_INITIAL_S, WS_BACKOFF_MAX_S,
 )
-from .models import HaTaskPayload, MCAgentState
+from .models import HaTaskPayload, EPAgentState
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class MCCoordinator(DataUpdateCoordinator):
-    """Manages MC connection, heartbeat, WebSocket task stream, and task execution."""
+class EPCoordinator(DataUpdateCoordinator):
+    """Manages EdgePlane connection, heartbeat, WebSocket task stream, and task execution."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         super().__init__(
             hass, _LOGGER, name=DOMAIN, update_interval=timedelta(seconds=300)
         )
         self._entry = entry
-        self._base_url: str = entry.data[CONF_MC_URL].rstrip("/")
+        self._base_url: str = entry.data[CONF_EP_URL].rstrip("/")
         self._token: str = entry.data[CONF_SA_TOKEN]
         self._agent_name: str = entry.data[CONF_AGENT_NAME]
         self._capabilities: list[str] = entry.data[CONF_CAPABILITIES]
@@ -46,7 +46,7 @@ class MCCoordinator(DataUpdateCoordinator):
         self._backoff: int = WS_BACKOFF_INITIAL_S
         self._shutdown: bool = False
         self._ws_task: asyncio.Task | None = None
-        self.state = MCAgentState()
+        self.state = EPAgentState()
 
     @property
     def _headers(self) -> dict[str, str]:
@@ -81,7 +81,7 @@ class MCCoordinator(DataUpdateCoordinator):
                 self._url(PATH_AUTH_WHOAMI), headers=self._headers
             ) as resp:
                 if resp.status == 401:
-                    raise ConfigEntryAuthFailed("Invalid MC token")
+                    raise ConfigEntryAuthFailed("Invalid EdgePlane token")
                 resp.raise_for_status()
 
     async def _enroll_agent(self) -> None:
@@ -127,7 +127,7 @@ class MCCoordinator(DataUpdateCoordinator):
                         return
                     resp.raise_for_status()
         except Exception as err:
-            _LOGGER.warning("MC agent heartbeat failed: %s", err)
+            _LOGGER.warning("EdgePlane agent heartbeat failed: %s", err)
 
     async def _set_status(self, status: str) -> None:
         if not self._agent_public_id:
@@ -141,19 +141,19 @@ class MCCoordinator(DataUpdateCoordinator):
                 ) as resp:
                     resp.raise_for_status()
         except aiohttp.ClientError as err:
-            _LOGGER.warning("MC status update failed: %s", err)
+            _LOGGER.warning("EdgePlane status update failed: %s", err)
         self.state.online = status == "online"
         self.async_set_updated_data(self.state)
 
     async def _notify_auth_failure(self) -> None:
         self.hass.components.persistent_notification.async_create(
-            "MissionControl API token has expired or been revoked. "
+            "EdgePlane API token has expired or been revoked. "
             "Reconfigure the integration with a fresh session token.",
-            title="MissionControl: Auth Failure",
-            notification_id="missioncontrol_auth_failure",
+            title="EdgePlane: Auth Failure",
+            notification_id="edgeplane_auth_failure",
         )
 
-    async def _async_update_data(self) -> MCAgentState:
+    async def _async_update_data(self) -> EPAgentState:
         """Watchdog poll — returns current state. Real updates come via WS push."""
         return self.state
 
@@ -194,7 +194,7 @@ class MCCoordinator(DataUpdateCoordinator):
                 return
             except aiohttp.ClientError as err:
                 _LOGGER.warning(
-                    "MC WebSocket error: %s. Reconnecting in %ss", err, self._backoff
+                    "EdgePlane WebSocket error: %s. Reconnecting in %ss", err, self._backoff
                 )
 
             if self._shutdown:

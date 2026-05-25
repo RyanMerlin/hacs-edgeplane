@@ -6,8 +6,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.missioncontrol.const import DOMAIN
-from custom_components.missioncontrol.coordinator import MCCoordinator
+from custom_components.edgeplane.const import DOMAIN
+from custom_components.edgeplane.coordinator import EPCoordinator
 
 
 @pytest.fixture
@@ -15,8 +15,8 @@ def config_entry(hass: HomeAssistant):
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={
-            "mc_url": "http://missioncontrol:8008",
-            "sa_token": "mc_session_test",
+            "ep_url": "http://edgeplane:8008",
+            "sa_token": "ep_session_test",
             "agent_name": "home-assistant",
             "capabilities": ["home_control.light", "notify"],
             "mission_id": "mission-123",
@@ -28,7 +28,7 @@ def config_entry(hass: HomeAssistant):
 
 @pytest.fixture
 def coordinator(hass, config_entry):
-    return MCCoordinator(hass, config_entry)
+    return EPCoordinator(hass, config_entry)
 
 
 def _make_session_mock(get_resp=None, post_resp=None):

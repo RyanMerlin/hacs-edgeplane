@@ -6,20 +6,20 @@ import pytest
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.missioncontrol.const import DOMAIN
-from custom_components.missioncontrol.coordinator import MCCoordinator
-from custom_components.missioncontrol.models import HaTaskPayload
+from custom_components.edgeplane.const import DOMAIN
+from custom_components.edgeplane.coordinator import EPCoordinator
+from custom_components.edgeplane.models import HaTaskPayload
 
 
 @pytest.fixture
 def coordinator(hass):
     entry = MockConfigEntry(domain=DOMAIN, data={
-        "mc_url": "http://mc:8008", "sa_token": "mc_session_test",
+        "ep_url": "http://edgeplane:8008", "sa_token": "ep_session_test",
         "agent_name": "home-assistant", "capabilities": ["notify"],
         "mission_id": "m1", "agent_id": "a1",
     })
     entry.add_to_hass(hass)
-    return MCCoordinator(hass, entry)
+    return EPCoordinator(hass, entry)
 
 
 @pytest.fixture

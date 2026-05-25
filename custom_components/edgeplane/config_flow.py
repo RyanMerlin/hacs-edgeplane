@@ -1,4 +1,4 @@
-"""Config flow for MissionControl integration."""
+"""Config flow for EdgePlane integration."""
 from __future__ import annotations
 
 import logging
@@ -11,14 +11,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import selector
 
 from .const import (
-    ALL_CAPABILITIES, CONF_AGENT_NAME, CONF_CAPABILITIES, CONF_MC_URL,
+    ALL_CAPABILITIES, CONF_AGENT_NAME, CONF_CAPABILITIES, CONF_EP_URL,
     CONF_MISSION_ID, CONF_SA_TOKEN, DOMAIN, PATH_AUTH_WHOAMI, PATH_MISSIONS,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 STEP1_SCHEMA = vol.Schema({
-    vol.Required(CONF_MC_URL): str,
+    vol.Required(CONF_EP_URL): str,
     vol.Required(CONF_SA_TOKEN): str,
 })
 
@@ -34,8 +34,8 @@ STEP2_SCHEMA = vol.Schema({
 })
 
 
-class MCClient:
-    """Minimal MC REST client used only during config flow."""
+class EPClient:
+    """Minimal EdgePlane REST client used only during config flow."""
 
     def __init__(self, base_url: str, token: str) -> None:
         self._base_url = base_url.rstrip("/")
@@ -77,8 +77,8 @@ class MCClient:
                 return data["id"]
 
 
-class MCConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle config flow for MissionControl."""
+class EPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle config flow for EdgePlane."""
 
     VERSION = 1
 
@@ -91,17 +91,17 @@ class MCConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            client = MCClient(user_input[CONF_MC_URL], user_input[CONF_SA_TOKEN])
+            client = EPClient(user_input[CONF_EP_URL], user_input[CONF_SA_TOKEN])
             try:
                 mission_id = await client.validate_and_create_mission()
                 self._connection_data = {
-                    CONF_MC_URL: user_input[CONF_MC_URL].rstrip("/"),
+                    CONF_EP_URL: user_input[CONF_EP_URL].rstrip("/"),
                     CONF_SA_TOKEN: user_input[CONF_SA_TOKEN],
                     CONF_MISSION_ID: mission_id,
                 }
                 return await self.async_step_agent()
             except Exception as err:
-                _LOGGER.warning("MC connection failed: %s", err)
+                _LOGGER.warning("EdgePlane connection failed: %s", err)
                 errors["base"] = "cannot_connect"
 
         return self.async_show_form(
@@ -115,7 +115,7 @@ class MCConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> config_entries.FlowResult:
         if user_input is not None:
             return self.async_create_entry(
-                title=f"MissionControl ({user_input[CONF_AGENT_NAME]})",
+                title=f"EdgePlane ({user_input[CONF_AGENT_NAME]})",
                 data={**self._connection_data, **user_input},
             )
 

@@ -6,22 +6,22 @@ import pytest
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.missioncontrol.const import DOMAIN
-from custom_components.missioncontrol.coordinator import MCCoordinator
+from custom_components.edgeplane.const import DOMAIN
+from custom_components.edgeplane.coordinator import EPCoordinator
 
 
 @pytest.fixture
 def coordinator(hass):
     entry = MockConfigEntry(domain=DOMAIN, data={
-        "mc_url": "http://mc:8008",
-        "sa_token": "mc_session_test",
+        "ep_url": "http://edgeplane:8008",
+        "sa_token": "ep_session_test",
         "agent_name": "home-assistant",
         "capabilities": ["home_control.light", "notify"],
         "mission_id": "mission-123",
         "agent_id": "agent-456",
     })
     entry.add_to_hass(hass)
-    return MCCoordinator(hass, entry)
+    return EPCoordinator(hass, entry)
 
 
 def _session_with_post(status=200, json_data=None):
@@ -111,7 +111,6 @@ async def test_handle_task_skips_on_capability_mismatch(hass, coordinator):
         "required_capabilities": ["kubectl"],
     }
     fetch_session = _session_with_get(200, task_data)
-    post_called = []
 
     with patch("aiohttp.ClientSession", side_effect=[fetch_session]):
         with patch.object(coordinator, "_claim_task", new_callable=AsyncMock) as mock_claim:

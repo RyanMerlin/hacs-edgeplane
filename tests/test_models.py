@@ -1,6 +1,6 @@
 import json
 import pytest
-from custom_components.missioncontrol.models import HaTaskPayload
+from custom_components.edgeplane.models import HaTaskPayload
 
 
 def test_parse_standard_payload():
