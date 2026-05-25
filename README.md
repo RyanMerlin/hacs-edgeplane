@@ -1,6 +1,6 @@
 # EdgePlane — Home Assistant Integration
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![HACS Default](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/integration)
 [![CI](https://github.com/RyanMerlin/hacs-edgeplane/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanMerlin/hacs-edgeplane/actions/workflows/ci.yml)
 
 Registers Home Assistant as a first-class agent in the [EdgePlane](https://github.com/RyanMerlin/edgeplane) fleet. HA enrolls via the EdgePlane mesh API, receives task assignments as WebSocket push messages, executes them as HA service calls, and reports completion back to EdgePlane.
@@ -15,11 +15,22 @@ Registers Home Assistant as a first-class agent in the [EdgePlane](https://githu
 
 ## Installation
 
-1. Add this repository to HACS as a custom repository
+### Via HACS (recommended)
+
+1. In HACS, search for **EdgePlane** and click Download
+2. Restart Home Assistant
+3. Go to **Settings → Devices & Services → Add Integration → EdgePlane**
+4. Enter your EdgePlane server URL and a session token (see [Authentication](#authentication) below)
+
+### Manual / custom repository
+
+If EdgePlane hasn't appeared in the HACS default store yet, add it manually:
+
+1. In HACS → ⋮ → Custom repositories, add `https://github.com/RyanMerlin/hacs-edgeplane` (category: Integration)
 2. Install "EdgePlane" from HACS
 3. Restart Home Assistant
 4. Go to **Settings → Devices & Services → Add Integration → EdgePlane**
-5. Enter your EdgePlane server URL and a session token (see [Authentication](#authentication) below)
+5. Enter your EdgePlane server URL and a session token
 
 ## Authentication
 
