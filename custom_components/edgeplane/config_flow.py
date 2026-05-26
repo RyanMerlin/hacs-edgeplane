@@ -94,6 +94,11 @@ class EPConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             client = EPClient(user_input[CONF_EP_URL], user_input[CONF_SA_TOKEN])
             try:
                 mission_id = await client.validate_and_create_mission()
+                if user_input[CONF_EP_URL].startswith("http://"):
+                    _LOGGER.warning(
+                        "EdgePlane URL uses HTTP — tokens will be sent in plaintext. "
+                        "Use HTTPS for production deployments."
+                    )
                 self._connection_data = {
                     CONF_EP_URL: user_input[CONF_EP_URL].rstrip("/"),
                     CONF_SA_TOKEN: user_input[CONF_SA_TOKEN],

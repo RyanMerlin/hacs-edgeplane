@@ -5,8 +5,9 @@ import asyncio
 import json
 import logging
 import re
+import uuid
 from datetime import timedelta
-from typing import Any
+from typing import Any, Callable
 
 import aiohttp
 from homeassistant.config_entries import ConfigEntry
@@ -63,6 +64,7 @@ class EPCoordinator(DataUpdateCoordinator):
         self._backoff: int = WS_BACKOFF_INITIAL_S
         self._shutdown: bool = False
         self._ws_task: asyncio.Task | None = None
+        self._heartbeat_unsub: Callable | None = None
         self.state = EPAgentState()
 
     @property
@@ -74,15 +76,17 @@ class EPCoordinator(DataUpdateCoordinator):
 
     async def _async_setup(self) -> None:
         """One-time setup: validate token, enroll, start loops."""
+        self._shutdown = False
         await self._validate_token()
         await self._enroll_agent()
-        self._entry.async_on_unload(
-            async_track_time_interval(
-                self.hass,
-                self._heartbeat,
-                timedelta(seconds=HEARTBEAT_INTERVAL_S),
-            )
+        if self._heartbeat_unsub:
+            self._heartbeat_unsub()
+        self._heartbeat_unsub = async_track_time_interval(
+            self.hass,
+            self._heartbeat,
+            timedelta(seconds=HEARTBEAT_INTERVAL_S),
         )
+        self._entry.async_on_unload(self._heartbeat_unsub)
         self._ws_task = self.hass.async_create_task(self._ws_listen_loop())
         self._entry.async_on_unload(self._cancel_ws)
         await self._set_status("online")
@@ -269,9 +273,11 @@ class EPCoordinator(DataUpdateCoordinator):
             payload = HaTaskPayload.from_json(task.get("description", "{}"))
             await self._execute_payload(payload, task_id, claim_lease_id)
         except ValueError as err:
-            await self._fail_task(task_id, claim_lease_id, f"invalid payload: {err}")
+            _LOGGER.error("Task %s payload error: %s", task_id, err)
+            await self._fail_task(task_id, claim_lease_id, "invalid payload")
         except Exception as err:
-            await self._fail_task(task_id, claim_lease_id, str(err))
+            _LOGGER.error("Task %s execution error: %s", task_id, err)
+            await self._fail_task(task_id, claim_lease_id, "execution error")
         finally:
             task_hb_cancel()
             self.state.active_tasks = max(0, self.state.active_tasks - 1)
@@ -366,8 +372,11 @@ class EPCoordinator(DataUpdateCoordinator):
     ) -> None:
         """Send actionable notification and wait for APPROVE/REJECT response."""
         future: asyncio.Future[str] = self.hass.loop.create_future()
+        notification_tag = f"ep_approval_{task_id}_{uuid.uuid4().hex[:8]}"
 
         def _on_action(event: Any) -> None:
+            if event.data.get("tag") != notification_tag:
+                return  # not our notification
             action = event.data.get("action", "")
             if not future.done():
                 future.set_result(action)
@@ -376,10 +385,16 @@ class EPCoordinator(DataUpdateCoordinator):
             "mobile_app_notification_action", _on_action
         )
 
+        # Inject tag into notification data so the mobile app echoes it back
+        service_data = dict(payload.data) if payload.data else {}
+        data_inner = dict(service_data.get("data", {}))
+        data_inner["tag"] = notification_tag
+        service_data["data"] = data_inner
+
         await self.hass.services.async_call(
             payload.domain,
             payload.service,
-            service_data=payload.data,
+            service_data=service_data,
         )
 
         try:
